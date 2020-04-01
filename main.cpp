@@ -1,7 +1,7 @@
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include <unistd.h>
+#include <string>
 
 using namespace sf;
 
@@ -13,17 +13,21 @@ class Button : public sf::Drawable {
 
 public:
     //constructor A
-    Button(Vector2f size, const char* s, const Vector2f &position) {
+    Button(Vector2f size, std::string s, const Vector2f &position): Button(position) {
         std::cout << "Constructor A called" << std::endl;
         this->size = size;
-        sf::Font font;
-        if (!font.loadFromFile("../resources/fonts/COOP_GEC.TTF")) {
+        sf::Font *font = new sf::Font(); //is this save? TODO: make_unique
+        if (!font->loadFromFile("../resources/fonts/COOP_GEC.TTF")) {
             std::cerr << "Unable to load font arial.ttf" << std::endl;
         }
 
-//        text = sf::Text(s, font, 30); //error
-//        text.setString(s);
-        text.setFont(font);
+        text = sf::Text(s, *font, 30);
+
+        //дублирование кода, может лучше вынести в отдельный метод или делегировать приватный конструктор
+        sf::Vector2f offset;
+        offset.x = this->text.getGlobalBounds().width * 0.5f;
+        offset.y = this->text.getGlobalBounds().height;
+        this->text.setPosition(position + size * 0.5f - offset);
 
         rectangleShape = sf::RectangleShape(Vector2f(150, 100));
         rectangleShape.setPosition(position);
@@ -41,7 +45,6 @@ public:
         sf::Vector2f offset;
         offset.x = this->text.getGlobalBounds().width * 0.5f;
         offset.y = this->text.getGlobalBounds().height;
-
         this->text.setPosition(position + size * 0.5f - offset);
     }
 
@@ -118,7 +121,7 @@ int main() {
         window.draw(background);
         window.draw(start_button);
         window.draw(settings_button);
-//        window.draw(test_button);
+        window.draw(test_button);
         window.display();
     }
 
