@@ -2,6 +2,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <tgmath.h>
 
 using namespace sf;
 
@@ -13,7 +14,7 @@ class Button : public sf::Drawable {
 
 public:
     //constructor A
-    Button(Vector2f size, std::string s, const Vector2f &position): Button(position) {
+    Button(Vector2f size, std::string s, const Vector2f &position) {
         std::cout << "Constructor A called" << std::endl;
         this->size = size;
         sf::Font *font = new sf::Font(); //is this save? TODO: make_unique
@@ -24,6 +25,7 @@ public:
         text = sf::Text(s, *font, 30);
 
         //дублирование кода, может лучше вынести в отдельный метод или делегировать приватный конструктор
+        //TODO: может дублирования не будет, если ты наконец починишь тут позицирование текста
         sf::Vector2f offset;
         offset.x = this->text.getGlobalBounds().width * 0.5f;
         offset.y = this->text.getGlobalBounds().height;
@@ -45,6 +47,10 @@ public:
         sf::Vector2f offset;
         offset.x = this->text.getGlobalBounds().width * 0.5f;
         offset.y = this->text.getGlobalBounds().height;
+
+        //maybe I'm blind, but the text seems noisy with no round
+        offset.x = round(offset.x);
+        offset.y = round(offset.y);
         this->text.setPosition(position + size * 0.5f - offset);
     }
 
@@ -88,7 +94,7 @@ int main() {
     t_background.loadFromFile("../resources/img/background.png");
     t_long_slot.loadFromFile("../resources/img/long_slots.png", IntRect(0, 0, 1024, 64));
 
-    cooperplate_cyrillic.loadFromFile("../resources/fonts/COOP_GCB.TTF");
+    cooperplate_cyrillic.loadFromFile("../resources/fonts/COOP_GEC.TTF");
 
     //Loading sprites
 
@@ -114,7 +120,7 @@ int main() {
             }
 
             if (start_button.isClicked(window)) {
-                window.close();
+                //убрать кнопки и показать вопрос
             }
         }
 
