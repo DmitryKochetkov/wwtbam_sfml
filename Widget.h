@@ -11,21 +11,24 @@
 #include <ctgmath>
 
 class Widget : public sf::Drawable {
+    std::string name;
     sf::RectangleShape rectangleShape;
     sf::Sprite sprite;
     sf::Text text;
     sf::Vector2f size;
 
 public:
-    Widget(sf::Vector2f size, std::string s, const sf::Vector2f &position);
+    Widget(std::string name, sf::Vector2f size, std::string s, const sf::Vector2f &position);
 
-    Widget(const sf::Sprite &sprite, const sf::Text &text, const sf::Vector2f &position);
+    Widget(std::string name, const sf::Sprite &sprite, const sf::Text &text, const sf::Vector2f &position);
 
     bool isClicked(sf::RenderWindow& window) {
         return sf::Mouse::isButtonPressed(sf::Mouse::Left) && sprite.getGlobalBounds().contains(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
     }
 
     const sf::Vector2f &getSize() const;
+
+    const std::string &getName() const;
 
 protected:
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;

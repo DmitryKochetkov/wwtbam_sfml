@@ -4,7 +4,7 @@
 
 #include "Widget.h"
 
-Widget::Widget(sf::Vector2f size, std::string s, const sf::Vector2f &position) {
+Widget::Widget(std::string name, sf::Vector2f size, std::string s, const sf::Vector2f &position): name(name) {
     this->size = size;
     sf::Font *font = new sf::Font(); //is this save? TODO: make_unique
     if (!font->loadFromFile("../resources/fonts/COOP_GEC.TTF")) {
@@ -26,11 +26,7 @@ Widget::Widget(sf::Vector2f size, std::string s, const sf::Vector2f &position) {
     rectangleShape.setOutlineThickness(3.0f);
 }
 
-const sf::Vector2f &Widget::getSize() const {
-    return size;
-}
-
-Widget::Widget(const sf::Sprite &sprite, const sf::Text &text, const sf::Vector2f &position) : sprite(sprite), text(text) {
+Widget::Widget(std::string name, const sf::Sprite &sprite, const sf::Text &text, const sf::Vector2f &position) : name(name), sprite(sprite), text(text) {
     this->sprite.setPosition(position);
     size = (sf::Vector2f)sprite.getTexture()->getSize();
 
@@ -44,10 +40,18 @@ Widget::Widget(const sf::Sprite &sprite, const sf::Text &text, const sf::Vector2
     this->text.setPosition(position + size * 0.5f - offset);
 }
 
+const sf::Vector2f &Widget::getSize() const {
+    return size;
+}
+
 void Widget::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     if (sprite.getTexture() != nullptr)
         target.draw(sprite);
     else target.draw(rectangleShape);
     target.draw(text);
+}
+
+const std::string &Widget::getName() const {
+    return name;
 }
 

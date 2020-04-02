@@ -25,15 +25,22 @@ public:
         widgets.push_back(std::make_unique<Widget>(widget));
     }
 
-    void remove(Widget &widget) {
+    void remove(const std::string& name) {
         for (auto it = widgets.begin(); it != widgets.end(); it++) {
-            if (it->get() == &widget)
+            if (it->get()->getName() == name)
                 widgets.erase(it);
         }
     }
 
     void clear() {
         widgets.clear();
+    }
+
+    Widget& get(const std::string& name) {
+        for (auto & widget : widgets) {
+            if (widget->getName() == name)
+                return *widget;
+        }
     }
 };
 
@@ -91,11 +98,8 @@ int main() {
     //Creating start screen
 
     WidgetManager manager = WidgetManager();
-    Widget start_button(long_slot, sf::Text("Play", resourceHolder.getFont("Cooperplate"), 30), Vector2f(0, window.getSize().y / 2));
-    Widget settings_button(long_slot, sf::Text("Settings", resourceHolder.getFont("Cooperplate"), 30), Vector2f(0, 600));
-    Widget test_button(Vector2f(200, 150), "Test", Vector2f(600, 150));
-    manager.add(start_button);
-    manager.add(settings_button);
+    manager.add(*(new Widget("start_button", long_slot, sf::Text("Play", resourceHolder.getFont("Cooperplate"), 30), Vector2f(0, window.getSize().y / 2))));
+    manager.add(*(new Widget("settings_button", long_slot, sf::Text("Settings", resourceHolder.getFont("Cooperplate"), 30), Vector2f(0, 600))));
 
     std::string a[4] = {"London", "Manchester", "Sheffield", "Liverpool"};
     wwtbam::Question q_test("What is the capital of Great Britain?", a, 0);
@@ -109,9 +113,9 @@ int main() {
                 window.close();
             }
 
-            if (start_button.isClicked(window)) {
-                manager.clear();
-                //manager.remove(start_button);
+            if (manager.get("start_button").isClicked(window)) {
+                //manager.clear();
+                manager.remove("start_button");
             }
         }
 

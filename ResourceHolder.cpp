@@ -30,10 +30,12 @@ void ResourceHolder::loadFont(std::string path, std::string name) {
 }
 
 sf::Texture &ResourceHolder::getTexture(std::string name) {
+    //TODO: prevent segmetation fault
     return *textures[name];
 }
 
 sf::Font &ResourceHolder::getFont(std::string name) {
+    //TODO: prevent segmetation fault
     return *fonts[name];
 }
 
