@@ -5,104 +5,29 @@
 #include <ctgmath>
 
 #include "ResourceHolder.h"
+#include "Widget.h"
 
 using namespace sf;
 
-class Button : public sf::Drawable {
-    sf::RectangleShape rectangleShape;
-    sf::Sprite sprite;
-    sf::Text text;
-    sf::Vector2f size;
 
-public:
-    //constructor A
-    Button(Vector2f size, std::string s, const Vector2f &position) {
-        this->size = size;
-        sf::Font *font = new sf::Font(); //is this save? TODO: make_unique
-        if (!font->loadFromFile("../resources/fonts/COOP_GEC.TTF")) {
-            std::cerr << "Unable to load font arial.ttf" << std::endl;
-        }
-
-        text = sf::Text(s, *font, 30);
-
-        //дублирование кода, может лучше вынести в отдельный метод или делегировать приватный конструктор
-        sf::Vector2f offset;
-        offset.x = this->text.getGlobalBounds().width * 0.5f;
-        offset.y = this->text.getGlobalBounds().height;
-        this->text.setPosition(position + size * 0.5f - offset);
-
-        rectangleShape = sf::RectangleShape(Vector2f(size.x, size.y));
-        rectangleShape.setPosition(position);
-        rectangleShape.setFillColor(sf::Color(255, 255, 255, 0));
-        rectangleShape.setOutlineColor(sf::Color(255, 255, 255));
-        rectangleShape.setOutlineThickness(3.0f);
-    }
-
-    //constructor B
-    Button(const Sprite &sprite, const Text &text, const Vector2f &position) : sprite(sprite), text(text) {
-        this->sprite.setPosition(position);
-        size = (Vector2f)sprite.getTexture()->getSize();
-
-        sf::Vector2f offset;
-        offset.x = this->text.getGlobalBounds().width * 0.5f;
-        offset.y = this->text.getGlobalBounds().height;
-
-        //maybe I'm blind, but the text seems noisy with no round
-        offset.x = round(offset.x);
-        offset.y = round(offset.y);
-        this->text.setPosition(position + size * 0.5f - offset);
-    }
-
-    bool isClicked(RenderWindow& window) {
-        return Mouse::isButtonPressed(Mouse::Left) && sprite.getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y);
-    }
-
-    const Vector2f &getSize() const {
-        return size;
-    }
-
-protected:
-    void draw(RenderTarget &target, RenderStates states) const override {
-        if (sprite.getTexture() != nullptr)
-            target.draw(sprite);
-        else target.draw(rectangleShape);
-        target.draw(text);
-    }
-};
 
 //TODO: make singleton
 class WidgetManager {
 private:
-    std::vector<std::unique_ptr<sf::Drawable>> widgets;
+    std::vector<std::unique_ptr<Widget>> widgets;
 public:
     void draw(sf::RenderWindow &window) {
         for (const auto &widget: widgets)
             window.draw(*widget);
     }
 
-//    void add(sf::Drawable &widget) {
-//        //widgets.push_back(std::unique_ptr<sf::Drawable>(&widget));
-//        widgets.push_back(std::make_unique<sf::Drawable>(widget));
-//    }
-
-    //TODO: maybe there is a way to make it better than a bunch of similar functions?
-
-    void add(sf::Text &text) {
-        widgets.push_back(std::make_unique<sf::Text>(text));
+    void add(Widget &widget) {
+        widgets.push_back(std::make_unique<Widget>(widget));
     }
 
-    void add(sf::Sprite &sprite) {
-        widgets.push_back(std::make_unique<sf::Sprite>(sprite));
-    }
-
-    void add(Button &button) {
-        widgets.push_back(std::make_unique<Button>(button));
-    }
-
-    //Doesn't work
-    void remove(sf::Drawable &widget) {
+    void remove(Widget &widget) {
         for (auto it = widgets.begin(); it != widgets.end(); it++) {
-            if ((*it).get() == &widget)
+            if (it->get() == &widget)
                 widgets.erase(it);
         }
     }
@@ -113,11 +38,34 @@ public:
 };
 
 namespace wwtbam {
-    const int width = 1024;
-    const int height = 768;
+    const int WIDTH = 1024;
+    const int HEIGHT = 768;
 
-    class WideButton : public Button {
-        const int height = 64;
+    //TODO: should be deserializable
+    class Question: public sf::Drawable {
+            std::string wording;
+            std::string answers[4];
+            int correct_answer;
+
+            static sf::Texture t_question;
+            //static sf::Texture t_answers;
+
+    public:
+        Question(const std::string &wording, std::string answers[4], int correctAnswer) : wording(wording), correct_answer(correctAnswer) {
+
+            sf::Texture t;
+            sf::Font f;
+            t.loadFromFile("../resources/img/question_and_answers.png");
+            f.loadFromFile("../resources/fonts/COOP_GEC.TTF");
+
+            for (int i = 0; i < 4; i++)
+                this->answers[i] = answers[i];
+        }
+
+    protected:
+        void draw(RenderTarget &target, RenderStates states) const override {
+
+        }
     };
 }
 
@@ -128,30 +76,29 @@ int main() {
 
     //Loading textures and fonts
 
-    sf::Texture t_background;
-    sf::Texture t_long_slot;
-    sf::Font cooperplate_cyrillic;
-
-    t_background.loadFromFile("../resources/img/background.png");
-    t_long_slot.loadFromFile("../resources/img/long_slots.png", IntRect(0, 0, wwtbam::WIDTH, 64));
-
-    cooperplate_cyrillic.loadFromFile("../resources/fonts/COOP_GEC.TTF");
+    ResourceHolder resourceHolder;
+    resourceHolder.loadTexture("../resources/img/background.png", "background");
+    resourceHolder.loadTexture("../resources/img/long_slots.png", "long_slots", IntRect(0, 0, wwtbam::WIDTH, 64));
+    resourceHolder.loadFont("../resources/fonts/COOP_GEC.TTF", "Cooperplate");
 
     //Loading sprites
 
-    sf::Sprite background(t_background);
+    sf::Sprite background(resourceHolder.getTexture("background"));
     background.setColor(sf::Color(255, 255, 255, 128)); //TODO: check this changes brightness
 
-    sf::Sprite long_slot(t_long_slot);
+    sf::Sprite long_slot(resourceHolder.getTexture("long_slots"));
 
     //Creating start screen
 
     WidgetManager manager = WidgetManager();
-    Button start_button(long_slot, sf::Text("Play", cooperplate_cyrillic, 30), Vector2f(0, window.getSize().y / 2));
-    Button settings_button(long_slot, sf::Text("Settings", cooperplate_cyrillic, 30), Vector2f(0, 600));
-    Button test_button(Vector2f(200, 150), "Test", Vector2f(600, 150));
+    Widget start_button(long_slot, sf::Text("Play", resourceHolder.getFont("Cooperplate"), 30), Vector2f(0, window.getSize().y / 2));
+    Widget settings_button(long_slot, sf::Text("Settings", resourceHolder.getFont("Cooperplate"), 30), Vector2f(0, 600));
+    Widget test_button(Vector2f(200, 150), "Test", Vector2f(600, 150));
     manager.add(start_button);
     manager.add(settings_button);
+
+    std::string a[4] = {"London", "Manchester", "Sheffield", "Liverpool"};
+    wwtbam::Question q_test("What is the capital of Great Britain?", a, 0);
 
     //Window logic
 
@@ -164,6 +111,7 @@ int main() {
 
             if (start_button.isClicked(window)) {
                 manager.clear();
+                //manager.remove(start_button);
             }
         }
 
