@@ -4,14 +4,14 @@
 
 #include "Widget.h"
 
-Widget::Widget(std::string name, sf::Vector2f size, std::string s, const sf::Vector2f &position): name(name) {
+Widget::Widget(const std::string &name, sf::Vector2f size, const std::string &text, const sf::Vector2f &position): name(name) {
     this->size = size;
     sf::Font *font = new sf::Font(); //is this save? TODO: make_unique
     if (!font->loadFromFile("../resources/fonts/COOP_GEC.TTF")) {
         std::cerr << "Unable to load font arial.ttf" << std::endl;
     }
 
-    text = sf::Text(s, *font, 30);
+    this->text = sf::Text(text, *font, 30);
 
     //дублирование кода, может лучше вынести в отдельный метод или делегировать приватный конструктор
     sf::Vector2f offset;
@@ -26,7 +26,7 @@ Widget::Widget(std::string name, sf::Vector2f size, std::string s, const sf::Vec
     rectangleShape.setOutlineThickness(3.0f);
 }
 
-Widget::Widget(std::string name, const sf::Sprite &sprite, const sf::Text &text, const sf::Vector2f &position) : name(name), sprite(sprite), text(text) {
+Widget::Widget(const std::string &name, const sf::Sprite &sprite, const sf::Text &text, const sf::Vector2f &position) : name(name), sprite(sprite), text(text) {
     this->sprite.setPosition(position);
     size = (sf::Vector2f)sprite.getTexture()->getSize();
 

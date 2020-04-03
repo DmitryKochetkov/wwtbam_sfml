@@ -39,3 +39,8 @@ sf::Font &ResourceHolder::getFont(std::string name) {
     return *fonts[name];
 }
 
+ResourceHolder &ResourceHolder::Instance() {
+    static ResourceHolder _instance;
+    return _instance;
+}
+
