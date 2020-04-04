@@ -7,7 +7,7 @@
 
 #include "Widget.h"
 
-//TODO: make singleton
+//TODO: delete
 class WidgetManager {
 private:
     std::vector<std::unique_ptr<Widget>> widgets;

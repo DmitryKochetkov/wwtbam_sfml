@@ -15,8 +15,6 @@ using namespace sf;
 namespace wwtbam {
     const int WIDTH = 1024;
     const int HEIGHT = 768;
-
-
 }
 
 int main() {
@@ -28,6 +26,7 @@ int main() {
 
     ResourceHolder::Instance().loadTexture("../resources/img/background.png", "background");
     ResourceHolder::Instance().loadTexture("../resources/img/long_slots.png", "long_slots", IntRect(0, 0, wwtbam::WIDTH, 64));
+    ResourceHolder::Instance().loadTexture("../resources/img/question_and_answers.png", "question_and_answers");
     ResourceHolder::Instance().loadFont("../resources/fonts/COOP_GEC.TTF", "Cooperplate");
 
     //Loading sprites
@@ -40,13 +39,17 @@ int main() {
     //Creating start screen
 
     WidgetManager manager = WidgetManager();
-    manager.add(*(new Widget("start_button", long_slot, sf::Text("Play", ResourceHolder::Instance().getFont("Cooperplate"), 30), Vector2f(0, window.getSize().y / 2))));
-    manager.add(*(new Widget("settings_button", long_slot, sf::Text("Settings", ResourceHolder::Instance().getFont("Cooperplate"), 30), Vector2f(0, 600))));
+    //manager.add(*(new Widget("start_button", long_slot, sf::Text("Play", ResourceHolder::Instance().getFont("Cooperplate"), 30), Vector2f(0, window.getSize().y / 2))));
+    //manager.add(*(new Widget("settings_button", long_slot, sf::Text("Settings", ResourceHolder::Instance().getFont("Cooperplate"), 30), Vector2f(0, 600))));
 
     std::string a[4] = {"London", "Manchester", "Sheffield", "Liverpool"};
     wwtbam::Question q_test("What is the capital of Great Britain?", a, 0);
 
+    //WidgetManager game;
+    //Game(..., game, ...);
+
     //Window logic
+    manager.add(sf::Text("test", ResourceHolder::Instance().getFont("Cooperplate"), 30));
 
     while (window.isOpen()) {
         sf::Event event;

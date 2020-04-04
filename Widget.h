@@ -10,6 +10,7 @@
 #include <SFML/Graphics.hpp>
 #include <ctgmath>
 
+//TODO: delete
 class Widget : public sf::Drawable {
     std::string name; //TODO: change to sort of hash and make a ==operator
     sf::RectangleShape rectangleShape;

@@ -9,8 +9,13 @@ void WidgetManager::draw(sf::RenderWindow &window) {
         window.draw(*widget);
 }
 
-void WidgetManager::add(Widget &widget) {
-    widgets.push_back(std::make_unique<Widget>(widget));
+//void WidgetManager::add(Widget &widget) {
+//    widgets.push_back(std::make_unique<Widget>(widget));
+//}
+
+template <typename T>
+void WidgetManager::add(T&& widget) {
+    widgets.push_back(std::make_unique<T>(widget));
 }
 
 void WidgetManager::remove(const std::string &name) {
@@ -29,6 +34,11 @@ Widget &WidgetManager::get(const std::string &name) {
         if (widget->getName() == name)
             return *widget;
     }
+}
+
+template<typename T>
+void WidgetManager::add(T &widget) {
+    widgets.push_back(std::make_unique<T>(widget));
 }
 
 
